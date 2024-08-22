@@ -56,11 +56,13 @@ volumes:
     driver: local
     driver_opts:
       o: bind
+      type: none
       device: /home/mde-arpe/data/maria
   wp_volume:
     driver: local
     driver_opts:
       o: bind
+      type: none
       device: /home/mde-arpe/data/wp
 
 networks:
