@@ -1,4 +1,4 @@
-chmod 777 /var/lib/mysql/wp_db
+chown mysql /var/lib/mysql
 
 cat << EOF > /tmp/init_db.sql
 CREATE DATABASE IF NOT EXISTS wp_db CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;

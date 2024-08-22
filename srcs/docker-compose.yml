@@ -4,16 +4,18 @@ services:
     container_name: mariadb
     env_file: .env
     healthcheck:
-      test: mariadb -e "SELECT 1;" && exit 0 || exit 1;
+      test: mariadb -e "SELECT 1;"
       interval: 5s
       timeout: 5s
       retries: 10
       start_period: 10s
       start_interval: 5s
     volumes:
-      - $PWD/srcs/requirements/mariadb/data:/var/lib/mysql/wp_db
-    # networks:
-    #   - inc-maria
+      - maria_volume:/var/lib/mysql
+    restart: always
+    networks:
+      - inc-net
+
   wordpress:
     build: ./requirements/wordpress/
     container_name: wordpress
@@ -21,37 +23,45 @@ services:
     depends_on:
       mariadb:
         condition: service_healthy
-    # healthcheck:
-    #   test: mariadb
-    #   interval: 5s
-    #   timeout: 5s
-    #   retries: 10
-    #   start_period: 10s
-    #   start_interval: 5s
+    healthcheck:
+      test: pgrep php-fpm7.4
+      interval: 5s
+      timeout: 5s
+      retries: 15
+      start_period: 10s
+      start_interval: 5s
     volumes:
-      - $PWD/srcs/requirements/wordpress/conf:/conf
-      - $PWD/srcs/requirements/wordpress/files:/usr/share/wordpress
-    # networks:
-    #   - inc-maria
-    #   - inc-nginx
+      - wp_volume:/usr/share/wordpress
+    restart: always
+    networks:
+      - inc-net
+
   nginx:
     build: ./requirements/nginx/
     container_name: nginx
     env_file: .env
-    #CHANGE PORT
     ports:
-      - "5000:443"
+      - "443:443"
     depends_on:
-      - wordpress
-    #     condition: service_healthy
+      wordpress:
+        condition: service_healthy
     volumes:
-      - $PWD/srcs/requirements/wordpress/files:/usr/share/wordpress
-    # networks:
-    #   - inc-nginx
+      - wp_volume:/usr/share/wordpress
+    restart: always
+    networks:
+      - inc-net
 
-#maybe it should be only one network
-# networks:
-#   inc-maria:
-#   inc-nginx:
-    
-  
+volumes:
+  maria_volume:
+    driver: local
+    driver_opts:
+      o: bind
+      device: /home/mde-arpe/data/maria
+  wp_volume:
+    driver: local
+    driver_opts:
+      o: bind
+      device: /home/mde-arpe/data/wp
+
+networks:
+  inc-net:

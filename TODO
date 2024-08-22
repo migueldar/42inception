@@ -1,26 +1,15 @@
 GENERAL
-- hacer que los volumenes se comporten bien en distintas runs, sobretodo crashea el de mariadb. Pensar el host deberia ser capaz de modificarlos
-- cleanup
 
 COMPOSE
-- health_check del wordpress, comprobarlo en nginx
-- ver como hacer que se vuelvan a levantar si se caen
 
 MARIA
-- kevin dice que disable root login (creo que es subject antiguo)
-- maybe chown mysql instead of chmod 777
 
 WORDPRESS
-- crear usuarios diferentes
-- remove --force
-- change url to mde-arpe.42.fr
-- comprobar que no estan instaladas antes de instalarlas (y tema usuarios)
-- quitar volumen poniendo copy en el dockerfile
 
 NGINX
 
 VM
-- crear
 - make mde-arpe.42.fr redirect to 127.0.0.1
+- cambiar las localizaciones de los volumenes
 
 ENV
