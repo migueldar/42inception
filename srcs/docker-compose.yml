@@ -3,12 +3,34 @@ services:
     build: ./requirements/mariadb/
     container_name: mariadb
     env_file: .env
+    healthcheck:
+      test: mariadb -e "SELECT 1;" && exit 0 || exit 1;
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+      start_interval: 5s
+    volumes:
+      - $PWD/srcs/requirements/mariadb/data:/var/lib/mysql/wp_db
     # networks:
     #   - inc-maria
   wordpress:
     build: ./requirements/wordpress/
     container_name: wordpress
     env_file: .env
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    # healthcheck:
+    #   test: mariadb
+    #   interval: 5s
+    #   timeout: 5s
+    #   retries: 10
+    #   start_period: 10s
+    #   start_interval: 5s
+    volumes:
+      - $PWD/srcs/requirements/wordpress/conf:/conf
+      - $PWD/srcs/requirements/wordpress/files:/usr/share/wordpress
     # networks:
     #   - inc-maria
     #   - inc-nginx
@@ -16,13 +38,16 @@ services:
     build: ./requirements/nginx/
     container_name: nginx
     env_file: .env
-    # networks:
-    #   - inc-nginx
+    #CHANGE PORT
     ports:
       - "5000:443"
-      - "8080:8080"
+    depends_on:
+      - wordpress
+    #     condition: service_healthy
     volumes:
-      - $PWD/srcs/requirements/nginx/conf:/conf
+      - $PWD/srcs/requirements/wordpress/files:/usr/share/wordpress
+    # networks:
+    #   - inc-nginx
 
 #maybe it should be only one network
 # networks:
